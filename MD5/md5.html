@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>MD5 Hash Generator</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+
+      h1 {
+        text-align: center;
+      }
+
+      form {
+        margin-top: 20px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 5px;
+        margin-bottom: 10px;
+      }
+
+      .output {
+        font-weight: bold;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>MD5 Hash Generator</h1>
+    <form>
+      <label for="inputString">Enter String:</label>
+      <input oninput="calculateMD5Hash()" type="text" id="inputString" name="inputString">
+      <div class="output">
+        <label for="md5Hash1">MD5 1:</label>
+        <output id="md5Hash1" name="md5Hash1"></output>
+      </div>
+      <div class="output">
+        <label for="md5Hash2">MD5 2:</label>
+        <output id="md5Hash2" name="md5Hash2"></output>
+      </div>
+      <div class="output">
+        <label for="md5Hash3">MD5 3:</label>
+        <output id="md5Hash3" name="md5Hash3"></output>
+      </div>
+    </form>
+    <script>
+      // MD5 hash function
+      MD5 = function(message) {
+        // Constants used in the MD5 algorithm
+        var k = [
+          0xd76aa478,
+          0xe8c7b756,
+          0x242070db,
+          0xc1bdceee,
+          0xf57c0faf,
+          0x4787c62a,
+          0xa8304613,
+          0xfd469501,
+          0x698098d8,
+          0x8b44f7af,
+          0xffff5bb1,
+          0x895cd7be,
+          0x6b901122,
+          0xfd987193,
+          0xa679438e,
+          0x49b40821,
+          0xf61e2562,
+          0xc040b340,
+          0x265e5a51,
+          0xe9b6c7aa,
+          0xd62f105d,
+          0x02441453,
+          0xd8a1e681,
+          0xe7d3fbc8,
+          0x21e1cde6,
+          0xc33707d6,
+          0xf4d50d87,
+          0x455a14ed,
+          0xa9e3e905,
+          0xfcefa3f8,
+          0x676f02d9,
+          0x8d2a4c8a,
+          0xfffa3942,
+          0x8771f681,
+          0x6d9d6122,
+          0xfde5380c,
+          0xa4beea44,
+          0x4bdecfa9,
+          0xf6bb4b60,
+          0xbebfbc70,
+          0x289b7ec6,
+          0xeaa127fa,
+          0xd4ef3085,
+          0x04881d05,
+          0xd9d4d039,
+          0xe6db99e5,
+          0x1fa27cf8,
+          0xc4ac5665,
+          0xf4292244,
+          0x432aff97,
+          0xab9423a7,
+          0xfc93a039,
+          0x655b59c3,
+          0x8f0ccc92,
+          0xffeff47d,
+          0x85845dd1,
+          0x6fa87e4f,
+          0xfe2ce6e0,
+          0xa3014314,
+          0x4e0811a1,
+          0xf7537e82,
+          0xbd3af235,
+          0x2ad7d2bb,
+          0xeb86d391
+        ]; // Rotate left function
+        var leftRotate = function(value, shift) {
+          return (value << shift) | (value >>> (32 - shift));
+        };
+        // Bitwise operation functions
+        var bitwiseOperation = {
+          and: function(a, b) {
+            var result = new Uint32Array(a.length);
+            for (var i = 0; i < a.length; i++) {
+              result[i] = a[i] & b[i];
+            }
+            return result;
+          },
+          or: function(a, b) {
+            var result = new Uint32Array(a.length);
+            for (var i = 0; i < a.length; i++) {
+              result[i] = a[i] | b[i];
+            }
+            return result;
+          },
+          xor: function(a, b) {
+            var result = new Uint32Array(a.length);
+            for (var i = 0; i < a.length; i++) {
+              result[i] = a[i] ^ b[i];
+            }
+            return result;
+          },
+          not: function(a) {
+            var result = new Uint32Array(a.length);
+            for (var i = 0; i < a.length; i++) {
+              result[i] = ~a[i];
+            }
+            return result;
+          }
+        };
+        // Convert an array of 32-bit words to a hex string
+        var toHexString = function(words) {
+          var hexString = "";
+          for (var i = 0; i < words.length; i++) {
+            var word = words[i];
+            for (var j = 0; j < 4; j++) {
+              var byte = (word >>> (j * 8)) & 0xff;
+              hexString += ("0" + byte.toString(16)).slice(-2);
+            }
+          }
+          return hexString;
+        };
+        // Convert the message to an array of 32-bit words
+        var messageWords = [];
+        for (var i = 0; i < message.length; i++) {
+          messageWords[i >>> 2] |= message.charCodeAt(i) << ((i % 4) * 8);
+        }
+        // Append padding bits and length
+        messageWords[(message.length + 8) >>> 6] |= 0x80 << ((message.length % 64) * 8);
+        messageWords[(((message.length + 8) >>> 6) + 1) * 16 - 2] = message.length * 8;
+        // Initialize hash values
+        var hash = new Uint32Array([0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476]);
+        // Main loop
+        for (var i = 0; i < messageWords.length; i += 16) {
+          var a = hash[0];
+          var b = hash[1];
+          var c = hash[2];
+          var d = hash[3];
+          for (var j = 0; j < 64; j++) {
+            var f, g;
+            if (j < 16) {
+              f = (b & c) | (~b & d);
+              g = j;
+            } else if (j < 32) {
+              f = (d & b) | (~d & c);
+              g = (5 * j + 1) % 16;
+            } else if (j < 48) {
+              f = b ^ c ^ d;
+              g = (3 * j + 5) % 16;
+            } else {
+              f = c ^ (b | ~d);
+              g = (7 * j) % 16;
+            }
+            var temp = d;
+            d = c;
+            c = b;
+            b = b + leftRotate((a + f + k[j] + messageWords[i + g]), [7, 12, 17, 22][j % 4]);
+            a = temp;
+          }
+          hash[0] += a;
+          hash[1] += b;
+          hash[2] += c;
+          hash[3] += d;
+        }
+        // Convert the hash to a hex string
+        return toHexString(hash);
+      };
+
+      function calculateMD5Hash() {
+        var inputString = document.getElementById("inputString").value;
+        var md5Hash1 = document.getElementById("md5Hash1");
+        var md5Hash2 = document.getElementById("md5Hash2");
+        var md5Hash3 = document.getElementById("md5Hash3");
+        md5Hash1.textContent = MD5(inputString);
+        md5Hash2.textContent = MD5(inputString + "123");
+        md5Hash3.textContent = MD5(inputString + "abc");
+      }
+    </script>
+  </body>
+</html>
